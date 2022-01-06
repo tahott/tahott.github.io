@@ -1,0 +1,6 @@
+{% extends "base.html" %}
+
+{% block content %}
+<!-- <h4>{{ page.date | date(format="%Y/%m/%d") | safe }} - {{ page.title | safe }}</h4> -->
+{{ page.content | safe }}
+{% endblock content %}

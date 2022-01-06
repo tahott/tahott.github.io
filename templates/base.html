@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- <link href="style.css" rel="stylesheet"> -->
+    <link href="{{ get_url(path="style.css", trailing_slash=false) | safe }}" rel="stylesheet">
+  </head>
+  <body>
+    <nav style="display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 1px; border-bottom-style: dashed;">
+      <div>
+        <a href="/" style="font-weight: bold;">Gost</a>
+      </div>
+      <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 0.5rem;">
+        <a href="/blog">blog</a>
+        <a href="/about">about</a>
+      </div>
+    </nav>
+    <main>
+      {% block content %} {% endblock %}
+    </main>
+    <footer>
+      <p>Website built with <a href="https://getzola.org">Zola</a></p>
+    </footer>
+  </body>
+</html>
