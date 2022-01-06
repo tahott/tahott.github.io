@@ -15,3 +15,4 @@ jobs:
           PAGES_BRANCH: main
           # Provide personal access token
           TOKEN: ${{ secrets.TOKEN }}
+          BUILD_ONLY: true
