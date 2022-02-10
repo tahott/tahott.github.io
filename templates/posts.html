@@ -3,7 +3,7 @@
 {% block content %}
 <ul>
   {% for page in section.pages %}
-  <li><a href="{{ page.permalink }}">{{ page.date }} - {{ page.title }}</a></li>
+  <li><a href="{{ page.permalink }}">{{ page.updated }} - {{ page.title }}</a></li>
   {% endfor %}
 </ul>
 {% endblock content %}

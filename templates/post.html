@@ -1,6 +1,13 @@
 {% extends "base.html" %}
 
 {% block content %}
-<!-- <h4>{{ page.date | date(format="%Y/%m/%d") | safe }} - {{ page.title | safe }}</h4> -->
+{% if page.taxonomies.tags %}
+  <div class="tags">
+    <span class="iconify" data-icon="bi:tag" style="font-size: 24px;"></span>
+    {% for tag in page.taxonomies.tags %}
+      <div class="tag">{{ tag }}</div>
+    {% endfor %}
+  </div>
+{% endif %}
 {{ page.content | safe }}
 {% endblock content %}

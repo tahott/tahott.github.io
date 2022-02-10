@@ -108,3 +108,14 @@ blockquote {
   margin: 0;
   color: rgba(255, 255, 255, 0.4);
 }
+
+.tags {
+  display: flex; 
+  flex-direction: row; 
+  align-items: center; 
+  margin-top: 0.2rem;
+}
+
+.tag {
+  margin: 0 0.5rem;
+}
