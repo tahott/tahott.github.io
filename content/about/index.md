@@ -1,7 +1,7 @@
 +++
 template = "about.html"
-date = "2022-01-06"
-updated = "2022-01-25"
+date = "2022-01-25"
+created = "2022-01-06"
 +++
 
 #### Me

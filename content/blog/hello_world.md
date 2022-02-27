@@ -1,7 +1,7 @@
 +++
 title = "Hello world"
-date = 2022-01-07
-updated = 2022-02-10
+date = "2022-02-10"
+created = "2022-01-07"
 +++
 
 # h1
