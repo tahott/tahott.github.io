@@ -2,6 +2,7 @@
 title = "이차 이직기"
 date = "2022-03-02"
 created = "2022-03-02"
+draft = true
 +++
 
 ##### Write something...
