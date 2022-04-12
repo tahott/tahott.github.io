@@ -2,6 +2,8 @@
 title = "카페 주문 시스템 #0"
 date = "2022-03-21"
 created = "2022-03-21"
+[taxonomies]
+tags = ["NestJs", "monorepo"]
 +++
 
 ### Prologue

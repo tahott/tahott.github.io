@@ -119,3 +119,23 @@ blockquote {
 img {
   width: 100%;
 }
+
+.tags {
+  flex-wrap: wrap;
+}
+
+.tag-card {
+  margin-left: 4px;
+  padding: 2px 3px;
+  border-color: #73ff94;
+  border-radius: 9999px;
+  font-weight: bold;
+}
+
+.tag-card:hover {
+  background-color: #73ff94;
+
+  a {
+    color: #1f2937;
+  }
+}

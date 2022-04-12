@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>{{ term.name }}</h2>
+<ul>
+  {% for post in term.pages %}
+    <li><a href="{{ post.permalink }}">{{ post.title }}</a><span style="float: right;">{{ post.date }}</span></li>
+  {% endfor %}
+</ul>
+
+{% endblock content %}
