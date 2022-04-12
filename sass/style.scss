@@ -1,5 +1,5 @@
 body {
-  font-family: 'Fira Code', monospace;
+  font-family: 'Source Sans Pro', monospace;
   background-color: #1f2937;
   color: #f0f0f0;
   margin-left: auto;
@@ -73,6 +73,7 @@ nav {
 ul {
   list-style-type: "- ";
   margin-bottom: 32px;
+  padding-inline-start: 20px;
 }
 
 li {

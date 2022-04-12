@@ -2,7 +2,7 @@
 
 {% block content %}
 <ul>
-  {% set section = get_section(path="blog/_index.md") %}
+  {% set section = get_section(path="posts/_index.md") %}
   {% for page in section.pages %}
   <li><a href="{{ page.permalink }}">{{ page.title }}</a><span style="float: right;">{{page.date}}</span></li>
   {% endfor %}
