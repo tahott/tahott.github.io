@@ -1,10 +1,13 @@
 {% extends "base.html" %}
 
 {% block content %}
-<ul>
+<h3>Recent Posts</h3>
+<ul class="posts-ul">
   {% set section = get_section(path="posts/_index.md") %}
   {% for page in section.pages %}
-  <li><a href="{{ page.permalink }}">{{ page.title }}</a><span style="float: right;">{{page.date}}</span></li>
+    {% if loop.index <= 5 %}
+      <li><a href="{{ page.permalink }}">{{ page.title }}</a><span style="float: right;">{{page.date}}</span></li>
+    {% endif %}
   {% endfor %}
 </ul>
 {% endblock content %}

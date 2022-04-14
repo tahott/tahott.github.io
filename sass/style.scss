@@ -84,7 +84,6 @@ li {
 
 code {
   font-family: inherit;
-  // background-color: #141b24;
   border-radius: 4px;
   padding: 0 2px 0 2px;
 }
@@ -92,7 +91,6 @@ code {
 pre {
   overflow: auto;
   font-family: inherit;
-  // background-color: #141b24;
   border-radius: 4px;
   padding: 4px 8px;
 
@@ -139,4 +137,10 @@ img {
   a {
     color: #1f2937;
   }
+}
+
+.posts-ul {
+  list-style-type: "";
+  margin-bottom: 32px;
+  padding-inline-start: 20px;
 }
