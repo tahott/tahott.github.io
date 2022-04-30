@@ -6,7 +6,7 @@ created = "2022-03-22"
 tags = ["NestJs", "monorepo"]
 +++
 
-#### day 1
+#### step 1
 고래는 개발자 시절 모놀리틱 레포 구조의 경험만 있었다. 하지만 전날 스케치한 아키텍처는 비동기 메시지 기반 통신을 지향하고 주문/결제/바리스타의 영역에서 한 쪽의 장애가 다른 영역에 영향을 끼치게 하고 싶지 않았다. 그래서 만들어둔 프로젝트 구조를 조금 변경 할 필요를 느꼈다. 다행히 NestJS는 <a href="https://docs.nestjs.com/cli/monorepo">모노레포</a>로 workspace를 만들 수 있는 환경을 지원하고 있어 적용해보기로 하였다.
 ```zsh
 root $ nest generate app order

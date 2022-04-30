@@ -1,12 +1,12 @@
 +++
 title = "카페 주문 시스템 #2"
-date = "2022-03-24"
+date = "2022-04-30"
 created = "2022-03-23"
 [taxonomies]
 tags = ["NestJs", "monorepo"]
 +++
 
-#### day 2
+#### step 2
 고래는 머릿속의 주문 과정을 다시 한 번 정리해보기로 했다.
 1. 고객은 키오스크 또는 앱으로 음료를 주문한다
 2. 결제 정보가 담긴 주문이 서버로 요청 된다
@@ -84,6 +84,16 @@ export class BaristaService {
     return this.#list.shift();
   }
 
+  static insertPickUpOrder(orderNo: string) {
+    this.#pickUpList.push(orderNo);
+  }
+
+  static shiftPickUpOrder() {
+    const orders = this.#pickUpList;
+    this.#pickUpList = [];
+    return orders;
+  }
+
   static currentBaristaWorkState() {
     return this.#isMaking;
   }
@@ -122,23 +132,28 @@ export class TasksService {
       && !BaristaService.currentBaristaWorkState()
     ) {
       BaristaService.setWorkBarista();
-      const menu = BaristaService.shiftOrder();
+      const list = BaristaService.shiftOrder();
 
-      switch (menu) {
-        case 'americano':
-          await this.delay(3000);
-          break;
-        case 'latte':
-          await this.delay(5000);
-          break;
-        default:
-          break;
+      console.log(
+        `Beverage make started at ${LocalDateTime.now()}`
+      );
+
+      for await (const menu of list.menu) {
+        await this.delay(Beverage.findByname(menu.name) * 1000 * menu.amount);
       }
 
       BaristaService.setWorkBarista();
+
       console.log(
-        `Order completed... ${menu}. ${new Date()}`
-      )
+        `Beverage make completed at ${LocalDateTime.now()}`
+      );
+      /**
+       * 하나의 오더가 완료 되었을 때, 픽업 알림을 보낸다
+       * How?
+       *  - 완료 된 주문을 픽업 리스트에 등록한다
+       *  - SSE에서 완료 된 메뉴가 있으면 클라이언트에 보내준다
+       */
+      BaristaService.insertPickUpOrder(list.orderNo);
     }
   }
 
@@ -151,5 +166,13 @@ export class TasksService {
 먼저 등록 된 주문을 꺼내 제조에 들어간다. 아메리카노는 n초, 라떼는 n초의 걸려 작업이 완료된다. 지금은 로그로 작업 완료를 나타내지만
 작업이 완료 되면 고객이 확인 할 수 있는 화면에 완료 상태를 푸시하는 작업을 추가 할 수 있을 것이다.
 
-상세하게는 아니지만 여기까지 하나의 사이클을 확인 한 것 같다. 앞으로는 각 app들의 세부사항 구현에 들어갈 것이라 생각하며 하루를 마무리한다.
-그리고 지금까지의 코드는 <a href="https://github.com/tahott/cafe-msa">이곳에</a> 있다.
+```ts
+@Sse()
+sse(): Observable<MessageEvent> {
+  return interval(10000).pipe(map(() => ({ data: BaristaService.shiftPickUpOrder().join(',') } as MessageEvent )));
+}
+```
+
+완료 된 음료 주문 리스트를 꺼내면서 알려주는 작업이 필요했고 서버에서 클라이언트로만 통신하면 되겠다 생각하여 <a href="https://developer.mozilla.org/ko/docs/Web/API/Server-sent_events/Using_server-sent_events" target="_blank">Server Sent Events</a>로 구현하였다. 이제 정말 카페 시스템의 기초인 주문을 받고 확인하고 제조 후 알려주는 이벤트까지 된 것 같다.
+
+지금까지의 코드는 <a href="https://github.com/tahott/cafe-msa" target="_blank">이곳에</a> 있다.
