@@ -15,6 +15,3 @@ created = "2022-01-06"
   - Node.js 백엔드 개발
 - (주)와임 - 2016.07 ~ 2018.05
   - Node.js, JavaScript 웹 개발
-
-#### Activity
-- 2021 오픈소스 컨트리뷰톤 참가
