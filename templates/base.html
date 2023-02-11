@@ -22,16 +22,17 @@
       <div>
         <a href="/" style="font-weight: bold;">Gost</a>
       </div>
-      <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 0.5rem;">
+      <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); column-gap: 0.5rem; text-align: center;">
         <a href="/posts">posts</a>
+        <a href="/tags">tags</a>
         <a href="/about">about</a>
       </div>
     </nav>
     <main>
       {% block content %} {% endblock %}
     </main>
-    <hr>
     <footer>
+      <hr style="margin: 0">
       <p>Website built with <a href="https://getzola.org">Zola</a></p>
     </footer>
   </body>

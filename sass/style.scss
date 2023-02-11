@@ -1,3 +1,7 @@
+html {
+  height: 100vh;
+}
+
 body {
   font-family: 'Source Sans Pro', monospace;
   background-color: #1f2937;
@@ -5,8 +9,17 @@ body {
   margin-left: auto;
   margin-right: auto;
   max-width: 1024px;
+  height: 100%;
   line-height: 2;
 }
+
+footer {
+  position: absolute;
+  bottom: 0;
+  max-width: 960px;
+  width: 100%;
+}
+
 
 main, hr, footer, nav {
   margin: 0 32px 0 32px;
