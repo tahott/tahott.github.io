@@ -1,8 +1,10 @@
 html {
-  height: 100vh;
+  height: 100%;
 }
 
 body {
+  display: flex;
+  flex-direction: column;
   font-family: 'Source Sans Pro', monospace;
   background-color: #1f2937;
   color: #f0f0f0;
@@ -13,11 +15,15 @@ body {
   line-height: 2;
 }
 
+main {
+  flex: 1;
+  height: auto;
+}
+
 footer {
-  position: absolute;
-  bottom: 0;
-  max-width: 960px;
-  width: 100%;
+  flex-shrink: 0;
+  border-top: 1px;
+  border-top-style: dashed;
 }
 
 
