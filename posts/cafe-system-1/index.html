@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- <link href="style.css" rel="stylesheet"> -->
+    <link href="https://tahott.github.io/style.css" rel="stylesheet">
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-Q5NSHRWBRK"></script>
+    <script src="https://code.iconify.design/2/2.1.0/iconify.min.js"></script>
+    <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro&display=swap" rel="stylesheet">
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-Q5NSHRWBRK');
+    </script>
+  </head>
+  <body>
+    <nav style="display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 1px; border-bottom-style: dashed;">
+      <div>
+        <a href="/" style="font-weight: bold;">Gost</a>
+      </div>
+      <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); column-gap: 0.5rem; text-align: center;">
+        <a href="/posts">posts</a>
+        <a href="/tags">tags</a>
+        <a href="/about">about</a>
+      </div>
+    </nav>
+    <main>
+      
+
+  <div class="tags">
+    <span class="iconify" data-icon="bi:tag" style="font-size: 24px;"></span>
+    
+      <div class="tag">NestJs</div>
+    
+      <div class="tag">monorepo</div>
+    
+  </div>
+
+<h4 id="step-1">step 1</h4>
+<p>고래는 개발자 시절 모놀리틱 레포 구조의 경험만 있었다. 하지만 전날 스케치한 아키텍처는 비동기 메시지 기반 통신을 지향하고 주문/결제/바리스타의 영역에서 한 쪽의 장애가 다른 영역에 영향을 끼치게 하고 싶지 않았다. 그래서 만들어둔 프로젝트 구조를 조금 변경 할 필요를 느꼈다. 다행히 NestJS는 <a href="https://docs.nestjs.com/cli/monorepo">모노레포</a>로 workspace를 만들 수 있는 환경을 지원하고 있어 적용해보기로 하였다.</p>
+<pre data-lang="zsh" style="background-color:#2b303b;color:#c0c5ce;" class="language-zsh "><code class="language-zsh" data-lang="zsh"><span style="color:#bf616a;">root</span><span> $ nest generate app order
+</span></code></pre>
+<pre data-lang="bash" style="background-color:#2b303b;color:#c0c5ce;" class="language-bash "><code class="language-bash" data-lang="bash"><span style="color:#96b5b4;">.
+</span><span>|</span><span style="color:#bf616a;">--</span><span> apps/
+</span><span>  |</span><span style="color:#bf616a;">--</span><span> order/
+</span><span>    |</span><span style="color:#bf616a;">--</span><span> src/
+</span><span>    |</span><span style="color:#bf616a;">--</span><span> test/
+</span><span>    |</span><span style="color:#bf616a;">--</span><span> tsconfig.app.json
+</span><span>  |</span><span style="color:#bf616a;">-- </span><span style="color:#b48ead;">[</span><span>project-name</span><span style="color:#b48ead;">]</span><span>/
+</span><span>|</span><span style="color:#bf616a;">--</span><span> dist/
+</span><span>|</span><span style="color:#bf616a;">--</span><span> docker/
+</span><span>  |</span><span style="color:#bf616a;">--</span><span> docker-compose.yml
+</span><span>|</span><span style="color:#bf616a;">--</span><span> node_modules/
+</span><span>|</span><span style="color:#bf616a;">--</span><span> .eslintrc.js
+</span><span>|</span><span style="color:#bf616a;">--</span><span> .gitignore
+</span><span>|</span><span style="color:#bf616a;">--</span><span> .prettierrc
+</span><span>|</span><span style="color:#bf616a;">--</span><span> nest-cli.json
+</span><span>|</span><span style="color:#bf616a;">--</span><span> package.json
+</span><span>|</span><span style="color:#bf616a;">--</span><span> README.md
+</span><span>|</span><span style="color:#bf616a;">--</span><span> tsconfig.build.json
+</span><span>|</span><span style="color:#bf616a;">--</span><span> tsconfig.json
+</span><span>|</span><span style="color:#bf616a;">--</span><span> yarn.lock
+</span></code></pre>
+<p>nest 명령어를 통해 프로젝트 구조가 변경 되었고 기존의 <code>proeject-name</code>으로 되어있던 폴더와 nest-cli.json에 있는 <code>project-name</code> 정보를 함께 삭제하기로 했다.
+그리고 로컬 개발 환경에서 카프카를 활용하기 위해 아래 명령어로 docker 폴더 안에 docker-compose 파일을 다운 받자</p>
+<pre data-lang="bash" style="background-color:#2b303b;color:#c0c5ce;" class="language-bash "><code class="language-bash" data-lang="bash"><span style="color:#bf616a;">root/docker</span><span> $ curl</span><span style="color:#bf616a;"> --silent --output</span><span> docker-compose.yml \
+</span><span>  https://raw.githubusercontent.com/confluentinc/cp-all-in-one/7.0.1-post/cp-all-in-one/docker-compose.yml
+</span></code></pre>
+<pre data-lang="bash" style="background-color:#2b303b;color:#c0c5ce;" class="language-bash "><code class="language-bash" data-lang="bash"><span style="color:#bf616a;">root</span><span> $ yarn add kafkajs @nestjs/microservices
+</span></code></pre>
+<p>NestJS에서 카프카를 사용하기 위해 kafkajs, @nestjs/microservices를 추가하며 시작할 준비가 끝난 듯 하다.<br>
+언제나 세팅 과정은 힘들다. 여기까지 했으면 스트레칭도 하고 커피도 마시며 쉬고 오자 ☕</p>
+<pre data-lang="ts" style="background-color:#2b303b;color:#c0c5ce;" class="language-ts "><code class="language-ts" data-lang="ts"><span style="color:#65737e;">// main.ts
+</span><span style="color:#b48ead;">import </span><span>{ </span><span style="color:#bf616a;">NestFactory </span><span>} </span><span style="color:#b48ead;">from </span><span>&#39;</span><span style="color:#a3be8c;">@nestjs/core</span><span>&#39;;
+</span><span style="color:#b48ead;">import </span><span>{ </span><span style="color:#bf616a;">MicroserviceOptions</span><span>, </span><span style="color:#bf616a;">Transport </span><span>} </span><span style="color:#b48ead;">from </span><span>&#39;</span><span style="color:#a3be8c;">@nestjs/microservices</span><span>&#39;;
+</span><span style="color:#b48ead;">import </span><span>{ </span><span style="color:#bf616a;">OrderModule </span><span>} </span><span style="color:#b48ead;">from </span><span>&#39;</span><span style="color:#a3be8c;">./order.module</span><span>&#39;;
+</span><span>
+</span><span style="color:#b48ead;">async function </span><span style="color:#8fa1b3;">bootstrap</span><span>() {
+</span><span>  </span><span style="color:#b48ead;">const </span><span style="color:#bf616a;">app </span><span>= </span><span style="color:#b48ead;">await </span><span style="color:#bf616a;">NestFactory</span><span>.</span><span style="color:#8fa1b3;">create</span><span>(</span><span style="color:#bf616a;">OrderModule</span><span>);
+</span><span>
+</span><span>  </span><span style="color:#bf616a;">app</span><span>.</span><span style="color:#8fa1b3;">connectMicroservice</span><span>&lt;MicroserviceOptions&gt;({
+</span><span>    transport: </span><span style="color:#bf616a;">Transport</span><span>.</span><span style="color:#bf616a;">KAFKA</span><span>,
+</span><span>    options: {
+</span><span>      client: {
+</span><span>        clientId: &#39;</span><span style="color:#a3be8c;">my-cafe</span><span>&#39;,
+</span><span>        brokers: [&#39;</span><span style="color:#a3be8c;">localhost:9092</span><span>&#39;],
+</span><span>      },
+</span><span>      consumer: {
+</span><span>        groupId: &#39;</span><span style="color:#a3be8c;">cafe-order</span><span>&#39;,
+</span><span>      },
+</span><span>    },
+</span><span>  });
+</span><span>
+</span><span>  </span><span style="color:#b48ead;">await </span><span style="color:#bf616a;">app</span><span>.</span><span style="color:#8fa1b3;">listen</span><span>(</span><span style="color:#d08770;">3000</span><span>);
+</span><span>}
+</span><span style="color:#8fa1b3;">bootstrap</span><span>();
+</span></code></pre>
+<pre data-lang="ts" style="background-color:#2b303b;color:#c0c5ce;" class="language-ts "><code class="language-ts" data-lang="ts"><span style="color:#65737e;">// order.module.ts
+</span><span>imports: [
+</span><span>  </span><span style="color:#bf616a;">ClientsModule</span><span>.</span><span style="color:#8fa1b3;">register</span><span>([
+</span><span>    {
+</span><span>      name: &#39;</span><span style="color:#a3be8c;">MY-CAFE-ORDER</span><span>&#39;,
+</span><span>      transport: </span><span style="color:#bf616a;">Transport</span><span>.</span><span style="color:#bf616a;">KAFKA</span><span>,
+</span><span>      options: {
+</span><span>        client: {
+</span><span>          clientId: &#39;</span><span style="color:#a3be8c;">my-cafe</span><span>&#39;,
+</span><span>          brokers: [&#39;</span><span style="color:#a3be8c;">localhost:9092</span><span>&#39;],
+</span><span>        },
+</span><span>        consumer: {
+</span><span>          groupId: &#39;</span><span style="color:#a3be8c;">cafe-order</span><span>&#39;,
+</span><span>        },
+</span><span>      },
+</span><span>    }
+</span><span>  ]),
+</span><span>],
+</span></code></pre>
+<pre data-lang="ts" style="background-color:#2b303b;color:#c0c5ce;" class="language-ts "><code class="language-ts" data-lang="ts"><span style="color:#65737e;">// order.controller.ts
+</span><span style="color:#b48ead;">export class </span><span style="color:#ebcb8b;">OrderController </span><span style="color:#b48ead;">implements </span><span style="color:#a3be8c;">OnModuleInit</span><span style="color:#eff1f5;">, </span><span style="color:#a3be8c;">OnModuleDestroy </span><span style="color:#eff1f5;">{
+</span><span style="color:#eff1f5;">  </span><span style="color:#b48ead;">constructor</span><span>(
+</span><span style="color:#eff1f5;">    </span><span style="color:#b48ead;">private readonly </span><span style="color:#bf616a;">orderService</span><span>: </span><span style="color:#eff1f5;">OrderService,
+</span><span style="color:#eff1f5;">    @</span><span style="color:#8fa1b3;">Inject</span><span style="color:#eff1f5;">(</span><span>&#39;</span><span style="color:#a3be8c;">MY-CAFE-ORDER</span><span>&#39;</span><span style="color:#eff1f5;">) </span><span style="color:#b48ead;">private readonly </span><span style="color:#bf616a;">client</span><span>: </span><span style="color:#eff1f5;">ClientKafka,
+</span><span style="color:#eff1f5;">  </span><span>) </span><span style="color:#eff1f5;">{ }
+</span><span style="color:#eff1f5;">  </span><span style="color:#b48ead;">async </span><span style="color:#8fa1b3;">onModuleInit</span><span>() </span><span style="color:#eff1f5;">{
+</span><span style="color:#eff1f5;">    </span><span style="color:#b48ead;">await </span><span style="color:#bf616a;">this</span><span style="color:#eff1f5;">.</span><span style="color:#bf616a;">client</span><span style="color:#eff1f5;">.</span><span style="color:#8fa1b3;">connect</span><span style="color:#eff1f5;">();
+</span><span style="color:#eff1f5;">  }
+</span><span style="color:#eff1f5;">
+</span><span style="color:#eff1f5;">  </span><span style="color:#b48ead;">async </span><span style="color:#8fa1b3;">onModuleDestroy</span><span>() </span><span style="color:#eff1f5;">{
+</span><span style="color:#eff1f5;">    </span><span style="color:#b48ead;">await </span><span style="color:#bf616a;">this</span><span style="color:#eff1f5;">.</span><span style="color:#bf616a;">client</span><span style="color:#eff1f5;">.</span><span style="color:#96b5b4;">close</span><span style="color:#eff1f5;">();
+</span><span style="color:#eff1f5;">  }
+</span><span style="color:#eff1f5;">
+</span><span style="color:#eff1f5;">  @</span><span style="color:#8fa1b3;">Get</span><span style="color:#eff1f5;">()
+</span><span style="color:#eff1f5;">  </span><span style="color:#8fa1b3;">getHello</span><span>() </span><span style="color:#eff1f5;">{
+</span><span style="color:#eff1f5;">    </span><span style="color:#b48ead;">return </span><span style="color:#bf616a;">this</span><span style="color:#eff1f5;">.</span><span style="color:#bf616a;">orderService</span><span style="color:#eff1f5;">.</span><span style="color:#8fa1b3;">getHello</span><span style="color:#eff1f5;">();
+</span><span style="color:#eff1f5;">  }
+</span><span style="color:#eff1f5;">
+</span><span style="color:#eff1f5;">  @</span><span style="color:#8fa1b3;">Post</span><span style="color:#eff1f5;">()
+</span><span style="color:#eff1f5;">  </span><span style="color:#8fa1b3;">order</span><span>() </span><span style="color:#eff1f5;">{
+</span><span style="color:#eff1f5;">    </span><span style="color:#b48ead;">return </span><span style="color:#bf616a;">this</span><span style="color:#eff1f5;">.</span><span style="color:#bf616a;">client</span><span style="color:#eff1f5;">.</span><span style="color:#8fa1b3;">emit</span><span style="color:#eff1f5;">(</span><span>&#39;</span><span style="color:#a3be8c;">order</span><span>&#39;</span><span style="color:#eff1f5;">, </span><span>`</span><span style="color:#a3be8c;">order created... ${</span><span>new </span><span style="color:#a3be8c;">Date()}</span><span>`</span><span style="color:#eff1f5;">);
+</span><span style="color:#eff1f5;">  }
+</span><span style="color:#eff1f5;">}
+</span></code></pre>
+<p>고래는 NestJS의 공식문서를 살펴보며 위와 같은 코드를 짰다. 아래의 명령어로 order 앱과 카프카를 실행시킨 후 order api를 Post method로 호출하면 'order' 토픽에 메시지가 쌓이는 것을 기대 할 수 있다.</p>
+<pre data-lang="bash" style="background-color:#2b303b;color:#c0c5ce;" class="language-bash "><code class="language-bash" data-lang="bash"><span style="color:#bf616a;">root/docker</span><span> $ docker-compose up</span><span style="color:#bf616a;"> -d
+</span><span style="color:#bf616a;">root</span><span> $ nest start order
+</span></code></pre>
+<p>이제 카프카의 토픽에 쌓인 메시지를 consumer하는 역의 앱을 추가하여 확인해 보자. 고객이 주문을 생성하면 결제정보가 함께 넘어오니
+결제 정보를 가져와 승인을 받기 위한 <code>payment</code> 앱을 추가하기로 한다.</p>
+<pre data-lang="bash" style="background-color:#2b303b;color:#c0c5ce;" class="language-bash "><code class="language-bash" data-lang="bash"><span style="color:#bf616a;">root</span><span> $ nest g app payment
+</span><span style="color:#96b5b4;">.
+</span><span>|</span><span style="color:#bf616a;">--</span><span> apps/
+</span><span>  |</span><span style="color:#bf616a;">--</span><span> order/
+</span><span>  |</span><span style="color:#bf616a;">--</span><span> payment/
+</span></code></pre>
+<p>payment 앱의 main.ts, payment.module.ts도 order와 같이 카프카를 위한 설정을 추가해준 뒤 controller에서 메시지 수신을 하기로 했다</p>
+<pre data-lang="ts" style="background-color:#2b303b;color:#c0c5ce;" class="language-ts "><code class="language-ts" data-lang="ts"><span style="color:#65737e;">// payment.controller.ts
+</span><span>@</span><span style="color:#8fa1b3;">MessagePattern</span><span>(&#39;</span><span style="color:#a3be8c;">order</span><span>&#39;)
+</span><span>  </span><span style="color:#8fa1b3;">recvMsg</span><span>(
+</span><span>    @</span><span style="color:#8fa1b3;">Payload</span><span>() </span><span style="color:#bf616a;">message</span><span>: </span><span style="color:#bf616a;">any</span><span>,
+</span><span>    @</span><span style="color:#8fa1b3;">Ctx</span><span>() </span><span style="color:#bf616a;">context</span><span>: </span><span style="color:#bf616a;">KafkaContext</span><span>,
+</span><span>  ) {
+</span><span>    </span><span style="color:#b48ead;">const </span><span style="color:#bf616a;">originMessage </span><span>= </span><span style="color:#bf616a;">context</span><span>.</span><span style="color:#8fa1b3;">getMessage</span><span>();
+</span><span>
+</span><span>    </span><span style="color:#ebcb8b;">console</span><span>.</span><span style="color:#96b5b4;">log</span><span>(JSON.</span><span style="color:#96b5b4;">stringify</span><span>(</span><span style="color:#bf616a;">originMessage</span><span>.value));
+</span><span>    </span><span style="color:#65737e;">// &quot;order created... Tue Mar dd 2022 hh:mm:ss GMT+0900 (대한민국 표준시)&quot;
+</span><span>  }
+</span></code></pre>
+<p>payment 앱도 실행 시킨 뒤, order의 api를 호출하니 payment에서 'order' 토픽에 쌓인 메시지를 가져오는 것을 확인 할 수 있었다.</p>
+<p>이제 간단하게 앱끼리의 pub/sub을 확인한 후 이제 주문-결제-제작의 사이클을 위한 코드를 추가하기로 한다.</p>
+
+
+    </main>
+    <footer>
+      <p>Website built with <a href="https://getzola.org">Zola</a></p>
+    </footer>
+  </body>
+</html>
