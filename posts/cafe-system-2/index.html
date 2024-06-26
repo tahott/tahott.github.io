@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- <link href="style.css" rel="stylesheet"> -->
+    <link href="https://tahott.github.io/style.css" rel="stylesheet">
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-Q5NSHRWBRK"></script>
+    <script src="https://code.iconify.design/2/2.1.0/iconify.min.js"></script>
+    <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro&display=swap" rel="stylesheet">
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-Q5NSHRWBRK');
+    </script>
+  </head>
+  <body>
+    <nav style="display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 1px; border-bottom-style: dashed;">
+      <div>
+        <a href="/" style="font-weight: bold;">Gost</a>
+      </div>
+      <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); column-gap: 0.5rem; text-align: center;">
+        <a href="/posts">posts</a>
+        <a href="/tags">tags</a>
+        <a href="/about">about</a>
+      </div>
+    </nav>
+    <main>
+      
+
+  <div class="tags">
+    <span class="iconify" data-icon="bi:tag" style="font-size: 24px;"></span>
+    
+      <div class="tag">NestJs</div>
+    
+      <div class="tag">monorepo</div>
+    
+  </div>
+
+<h4 id="step-2">step 2</h4>
+<p>고래는 머릿속의 주문 과정을 다시 한 번 정리해보기로 했다.</p>
+<ol>
+<li>고객은 키오스크 또는 앱으로 음료를 주문한다</li>
+<li>결제 정보가 담긴 주문이 서버로 요청 된다</li>
+<li>Order App이 주문 정보를 DB에 저장하고 주문 생성 이벤트를 발행한다</li>
+<li>주문 생성 이벤트가 발행되면 Payment App이 토픽에서 이벤트를 확인하여 결제 정보로 벤더사에 승인을 요청한다</li>
+<li>승인 여부를 담은 결제처리 이벤트를 페이먼츠가 발행한다</li>
+<li>Order와 Barista 결제처리 이벤트를 확인한다.<br>
+6-1. Order는 결제 처리 여부를 고객에게 리턴한다<br>
+6-2. Barista는 결제가 성공이라면 주문 리스트에 주문 정보를 업데이트하고 순서대로 제작에 들어간다</li>
+<li>음료 제작이 완료되면 주문한 고객에게 알린다 (앱 또는 주문 현황 스크린)</li>
+</ol>
+<p>세세하지 않지만 이런 흐름대로 처리하면 될거라 생각을 마친 후 일단 개발에 들어갔다.</p>
+<p>payment에서 order에 등록 된 토픽을 가져오는 것까지 확인했으니 이어서 결제 처리 완료를 진행 할 차례다.</p>
+<pre data-lang="ts" style="background-color:#2b303b;color:#c0c5ce;" class="language-ts "><code class="language-ts" data-lang="ts"><span style="color:#65737e;">// payment.controller.ts
+</span><span>@</span><span style="color:#8fa1b3;">MessagePattern</span><span>(&#39;</span><span style="color:#a3be8c;">order</span><span>&#39;)
+</span><span style="color:#bf616a;">async </span><span style="color:#8fa1b3;">recvMsg</span><span>(
+</span><span>  @</span><span style="color:#8fa1b3;">Payload</span><span>() </span><span style="color:#bf616a;">message</span><span>: </span><span style="color:#bf616a;">any</span><span>,
+</span><span>  @</span><span style="color:#8fa1b3;">Ctx</span><span>() </span><span style="color:#bf616a;">context</span><span>: </span><span style="color:#bf616a;">KafkaContext</span><span>,
+</span><span>) {
+</span><span>  </span><span style="color:#b48ead;">const </span><span style="color:#bf616a;">originMessage </span><span>= </span><span style="color:#bf616a;">context</span><span>.</span><span style="color:#8fa1b3;">getMessage</span><span>();
+</span><span>
+</span><span>  </span><span style="color:#b48ead;">const </span><span style="color:#bf616a;">paymentResult </span><span>= </span><span style="color:#b48ead;">await </span><span style="color:#bf616a;">this</span><span>.</span><span style="color:#8fa1b3;">thirdPartyPay</span><span>();
+</span><span>
+</span><span>  </span><span style="color:#b48ead;">const </span><span style="color:#bf616a;">res </span><span>= </span><span style="color:#ebcb8b;">Object</span><span>.</span><span style="color:#8fa1b3;">assign</span><span>(</span><span style="color:#bf616a;">originMessage</span><span>.value, { </span><span style="color:#bf616a;">paymentResult </span><span>});
+</span><span>
+</span><span>  </span><span style="color:#ebcb8b;">console</span><span>.</span><span style="color:#96b5b4;">log</span><span>(</span><span style="color:#bf616a;">res</span><span>)
+</span><span>
+</span><span>  </span><span style="color:#bf616a;">this</span><span>.</span><span style="color:#bf616a;">client</span><span>.</span><span style="color:#8fa1b3;">emit</span><span>(&#39;</span><span style="color:#a3be8c;">payment</span><span>&#39;, </span><span style="color:#bf616a;">res</span><span>);
+</span><span>
+</span><span>  </span><span style="color:#b48ead;">return </span><span style="color:#bf616a;">res</span><span>;
+</span><span>}
+</span><span>
+</span><span style="color:#bf616a;">private async </span><span style="color:#8fa1b3;">thirdPartyPay</span><span>() {
+</span><span>  </span><span style="color:#b48ead;">return </span><span>Math.</span><span style="color:#96b5b4;">floor</span><span>(Math.</span><span style="color:#96b5b4;">random</span><span>() * (</span><span style="color:#d08770;">11 </span><span>- </span><span style="color:#d08770;">1</span><span>) + </span><span style="color:#d08770;">1</span><span>) &lt; </span><span style="color:#d08770;">9</span><span>;
+</span><span>}
+</span></code></pre>
+<p>간편 결제로 많이 지원하는 xx페이의 API 문서를 보면 최종 승인을 위한 token 혹은 id 값을 보내 벤더사에 최종 결제처리를 요청 하는 것을 볼 수 있었다.
+주문을 할 때 간편결제류로 여러 페이를 지원한다는 가정하에 최종 결제를 요청 할 'thirdPartyPay'라는 함수를 만들고 1/10 확률로 결제 실패를 할 거라 가정해둔다.
+그리고 기존의 주문 정보와 결제처리 결과를 payment라는 토픽으로 발행하며 값은 값을 리턴값으로 사용하여 order 측에 결제 처리 결과를 동기적으로 알려준다.</p>
+<pre data-lang="ts" style="background-color:#2b303b;color:#c0c5ce;" class="language-ts "><code class="language-ts" data-lang="ts"><span style="color:#65737e;">// barista.controller.ts
+</span><span>@</span><span style="color:#8fa1b3;">MessagePattern</span><span>(&#39;</span><span style="color:#a3be8c;">payment</span><span>&#39;)
+</span><span>  </span><span style="color:#8fa1b3;">recvMsg</span><span>(
+</span><span>    @</span><span style="color:#8fa1b3;">Payload</span><span>() </span><span style="color:#bf616a;">message</span><span>: </span><span style="color:#bf616a;">any</span><span>,
+</span><span>    @</span><span style="color:#8fa1b3;">Ctx</span><span>() </span><span style="color:#bf616a;">context</span><span>: </span><span style="color:#bf616a;">KafkaContext</span><span>,
+</span><span>  ) {
+</span><span>    </span><span style="color:#b48ead;">const </span><span style="color:#bf616a;">originMessage </span><span>= </span><span style="color:#bf616a;">context</span><span>.</span><span style="color:#8fa1b3;">getMessage</span><span>();
+</span><span>
+</span><span>    </span><span style="color:#b48ead;">if </span><span>(JSON.</span><span style="color:#96b5b4;">parse</span><span>(JSON.</span><span style="color:#96b5b4;">stringify</span><span>(</span><span style="color:#bf616a;">originMessage</span><span>.value)).</span><span style="color:#bf616a;">paymentResult</span><span>) {
+</span><span>      </span><span style="color:#65737e;">/**
+</span><span style="color:#65737e;">       * 주문이 리스트에 등록되면 바리스타는 작업에 들어간다
+</span><span style="color:#65737e;">       * 바리스타는 실제로는 사람이지만 이 시스템에서는 바리스타의 행동을
+</span><span style="color:#65737e;">       * 정의하는 서비스를 따로 두어 바리스타의 행동을 나타내기로 한다
+</span><span style="color:#65737e;">       */
+</span><span>      </span><span style="color:#bf616a;">BaristaService</span><span>.</span><span style="color:#8fa1b3;">insertOrder</span><span>(JSON.</span><span style="color:#96b5b4;">parse</span><span>(JSON.</span><span style="color:#96b5b4;">stringify</span><span>(</span><span style="color:#bf616a;">originMessage</span><span>.value)).name)
+</span><span>    }
+</span><span>  }
+</span></code></pre>
+<pre data-lang="ts" style="background-color:#2b303b;color:#c0c5ce;" class="language-ts "><code class="language-ts" data-lang="ts"><span style="color:#65737e;">// barista.service.ts
+</span><span style="color:#b48ead;">export class </span><span style="color:#ebcb8b;">BaristaService </span><span style="color:#eff1f5;">{
+</span><span style="color:#eff1f5;">  </span><span style="color:#b48ead;">static </span><span style="color:#bf616a;">#list</span><span>: </span><span style="color:#eff1f5;">Array&lt;string&gt; </span><span>= </span><span style="color:#eff1f5;">[];
+</span><span style="color:#eff1f5;">  </span><span style="color:#b48ead;">static </span><span style="color:#bf616a;">#isMaking </span><span>= </span><span style="color:#d08770;">false</span><span style="color:#eff1f5;">;
+</span><span style="color:#eff1f5;">
+</span><span style="color:#eff1f5;">  </span><span style="color:#b48ead;">constructor</span><span>() </span><span style="color:#eff1f5;">{ }
+</span><span style="color:#eff1f5;">
+</span><span style="color:#eff1f5;">  </span><span style="color:#b48ead;">static </span><span style="color:#8fa1b3;">insertOrder</span><span>(</span><span style="color:#bf616a;">menu</span><span>: </span><span style="color:#eff1f5;">string</span><span>) </span><span style="color:#eff1f5;">{
+</span><span style="color:#eff1f5;">    </span><span style="color:#bf616a;">this</span><span style="color:#eff1f5;">.</span><span style="color:#bf616a;">#list</span><span style="color:#eff1f5;">.</span><span style="color:#96b5b4;">push</span><span style="color:#eff1f5;">(</span><span style="color:#bf616a;">menu</span><span style="color:#eff1f5;">);
+</span><span style="color:#eff1f5;">  }
+</span><span style="color:#eff1f5;">
+</span><span style="color:#eff1f5;">  </span><span style="color:#b48ead;">static </span><span style="color:#8fa1b3;">shiftOrder</span><span>() </span><span style="color:#eff1f5;">{
+</span><span style="color:#eff1f5;">    </span><span style="color:#b48ead;">return </span><span style="color:#bf616a;">this</span><span style="color:#eff1f5;">.</span><span style="color:#bf616a;">#list</span><span style="color:#eff1f5;">.</span><span style="color:#96b5b4;">shift</span><span style="color:#eff1f5;">();
+</span><span style="color:#eff1f5;">  }
+</span><span style="color:#eff1f5;">
+</span><span style="color:#eff1f5;">  </span><span style="color:#b48ead;">static </span><span style="color:#8fa1b3;">insertPickUpOrder</span><span>(</span><span style="color:#bf616a;">orderNo</span><span>: </span><span style="color:#eff1f5;">string</span><span>) </span><span style="color:#eff1f5;">{
+</span><span style="color:#eff1f5;">    </span><span style="color:#bf616a;">this</span><span style="color:#eff1f5;">.</span><span style="color:#bf616a;">#pickUpList</span><span style="color:#eff1f5;">.</span><span style="color:#96b5b4;">push</span><span style="color:#eff1f5;">(</span><span style="color:#bf616a;">orderNo</span><span style="color:#eff1f5;">);
+</span><span style="color:#eff1f5;">  }
+</span><span style="color:#eff1f5;">
+</span><span style="color:#eff1f5;">  </span><span style="color:#b48ead;">static </span><span style="color:#8fa1b3;">shiftPickUpOrder</span><span>() </span><span style="color:#eff1f5;">{
+</span><span style="color:#eff1f5;">    </span><span style="color:#b48ead;">const </span><span style="color:#bf616a;">orders </span><span>= </span><span style="color:#bf616a;">this</span><span style="color:#eff1f5;">.</span><span style="color:#bf616a;">#pickUpList</span><span style="color:#eff1f5;">;
+</span><span style="color:#eff1f5;">    </span><span style="color:#bf616a;">this</span><span style="color:#eff1f5;">.</span><span style="color:#bf616a;">#pickUpList </span><span>= </span><span style="color:#eff1f5;">[];
+</span><span style="color:#eff1f5;">    </span><span style="color:#b48ead;">return </span><span style="color:#bf616a;">orders</span><span style="color:#eff1f5;">;
+</span><span style="color:#eff1f5;">  }
+</span><span style="color:#eff1f5;">
+</span><span style="color:#eff1f5;">  </span><span style="color:#b48ead;">static </span><span style="color:#8fa1b3;">currentBaristaWorkState</span><span>() </span><span style="color:#eff1f5;">{
+</span><span style="color:#eff1f5;">    </span><span style="color:#b48ead;">return </span><span style="color:#bf616a;">this</span><span style="color:#eff1f5;">.</span><span style="color:#bf616a;">#isMaking</span><span style="color:#eff1f5;">;
+</span><span style="color:#eff1f5;">  }
+</span><span style="color:#eff1f5;">
+</span><span style="color:#eff1f5;">  </span><span style="color:#b48ead;">static </span><span style="color:#8fa1b3;">getOrderList</span><span>() </span><span style="color:#eff1f5;">{
+</span><span style="color:#eff1f5;">    </span><span style="color:#b48ead;">return </span><span style="color:#bf616a;">this</span><span style="color:#eff1f5;">.</span><span style="color:#bf616a;">#list</span><span style="color:#eff1f5;">;
+</span><span style="color:#eff1f5;">  }
+</span><span style="color:#eff1f5;">
+</span><span style="color:#eff1f5;">  </span><span style="color:#b48ead;">static </span><span style="color:#8fa1b3;">setWorkBarista</span><span>() </span><span style="color:#eff1f5;">{
+</span><span style="color:#eff1f5;">    </span><span style="color:#bf616a;">this</span><span style="color:#eff1f5;">.</span><span style="color:#bf616a;">#isMaking </span><span>= !</span><span style="color:#bf616a;">this</span><span style="color:#eff1f5;">.</span><span style="color:#bf616a;">#isMaking</span><span style="color:#eff1f5;">;
+</span><span style="color:#eff1f5;">  }
+</span><span style="color:#eff1f5;">}
+</span></code></pre>
+<p>바리스타(고래)의 행동은 전역적으로 공유 된다. 주문은 한 번에 하나씩 처리할 수 있고 먼저 들어온 주문 먼저 처리를 한다.
+결제처리가 성공이되면 주문 리스트에 주문이 등록 된다.</p>
+<pre data-lang="bash" style="background-color:#2b303b;color:#c0c5ce;" class="language-bash "><code class="language-bash" data-lang="bash"><span style="color:#bf616a;">$</span><span> yarn add @nestjs/schedule
+</span><span>|</span><span style="color:#bf616a;">--</span><span> apps/
+</span><span>  |</span><span style="color:#bf616a;">--</span><span> .../
+</span><span>  |</span><span style="color:#bf616a;">--</span><span> barista/
+</span><span>  |</span><span style="color:#bf616a;">--</span><span> src/
+</span><span>    |</span><span style="color:#bf616a;">--</span><span> tasks/
+</span><span>      |</span><span style="color:#bf616a;">--</span><span> tasks.module.ts
+</span><span>      |</span><span style="color:#bf616a;">--</span><span> tasks.service.ts
+</span></code></pre>
+<pre data-lang="ts" style="background-color:#2b303b;color:#c0c5ce;" class="language-ts "><code class="language-ts" data-lang="ts"><span style="color:#65737e;">// tasks.service.ts
+</span><span>@</span><span style="color:#8fa1b3;">Injectable</span><span>()
+</span><span style="color:#b48ead;">export class </span><span style="color:#ebcb8b;">TasksService </span><span style="color:#eff1f5;">{
+</span><span style="color:#eff1f5;">  </span><span style="color:#b48ead;">constructor</span><span>() </span><span style="color:#eff1f5;">{ }
+</span><span style="color:#eff1f5;">  
+</span><span style="color:#eff1f5;">  @</span><span style="color:#8fa1b3;">Interval</span><span style="color:#eff1f5;">(</span><span style="color:#d08770;">3000</span><span style="color:#eff1f5;">)
+</span><span style="color:#eff1f5;">  </span><span style="color:#b48ead;">async </span><span style="color:#8fa1b3;">handleInterval</span><span>() </span><span style="color:#eff1f5;">{
+</span><span style="color:#eff1f5;">    </span><span style="color:#b48ead;">if </span><span style="color:#eff1f5;">(</span><span style="color:#bf616a;">BaristaService</span><span style="color:#eff1f5;">.</span><span style="color:#8fa1b3;">getOrderList</span><span style="color:#eff1f5;">().length </span><span>&gt; </span><span style="color:#d08770;">0
+</span><span style="color:#eff1f5;">      </span><span>&amp;&amp; !</span><span style="color:#bf616a;">BaristaService</span><span style="color:#eff1f5;">.</span><span style="color:#8fa1b3;">currentBaristaWorkState</span><span style="color:#eff1f5;">()
+</span><span style="color:#eff1f5;">    ) {
+</span><span style="color:#eff1f5;">      </span><span style="color:#bf616a;">BaristaService</span><span style="color:#eff1f5;">.</span><span style="color:#8fa1b3;">setWorkBarista</span><span style="color:#eff1f5;">();
+</span><span style="color:#eff1f5;">      </span><span style="color:#b48ead;">const </span><span style="color:#bf616a;">list </span><span>= </span><span style="color:#bf616a;">BaristaService</span><span style="color:#eff1f5;">.</span><span style="color:#8fa1b3;">shiftOrder</span><span style="color:#eff1f5;">();
+</span><span style="color:#eff1f5;">
+</span><span style="color:#eff1f5;">      </span><span style="color:#ebcb8b;">console</span><span style="color:#eff1f5;">.</span><span style="color:#96b5b4;">log</span><span style="color:#eff1f5;">(
+</span><span style="color:#eff1f5;">        </span><span>`</span><span style="color:#a3be8c;">Beverage make started at ${</span><span style="color:#bf616a;">LocalDateTime</span><span style="color:#a3be8c;">.</span><span style="color:#8fa1b3;">now</span><span style="color:#a3be8c;">()}</span><span>`
+</span><span style="color:#eff1f5;">      );
+</span><span style="color:#eff1f5;">
+</span><span style="color:#eff1f5;">      </span><span style="color:#b48ead;">for await </span><span style="color:#eff1f5;">(</span><span style="color:#b48ead;">const </span><span style="color:#bf616a;">menu </span><span>of </span><span style="color:#bf616a;">list</span><span style="color:#eff1f5;">.</span><span style="color:#bf616a;">menu</span><span style="color:#eff1f5;">) {
+</span><span style="color:#eff1f5;">        </span><span style="color:#b48ead;">await </span><span style="color:#bf616a;">this</span><span style="color:#eff1f5;">.</span><span style="color:#8fa1b3;">delay</span><span style="color:#eff1f5;">(</span><span style="color:#bf616a;">Beverage</span><span style="color:#eff1f5;">.</span><span style="color:#8fa1b3;">findByname</span><span style="color:#eff1f5;">(</span><span style="color:#bf616a;">menu</span><span style="color:#eff1f5;">.name) </span><span>* </span><span style="color:#d08770;">1000 </span><span>* </span><span style="color:#bf616a;">menu</span><span style="color:#eff1f5;">.</span><span style="color:#bf616a;">amount</span><span style="color:#eff1f5;">);
+</span><span style="color:#eff1f5;">      }
+</span><span style="color:#eff1f5;">
+</span><span style="color:#eff1f5;">      </span><span style="color:#bf616a;">BaristaService</span><span style="color:#eff1f5;">.</span><span style="color:#8fa1b3;">setWorkBarista</span><span style="color:#eff1f5;">();
+</span><span style="color:#eff1f5;">
+</span><span style="color:#eff1f5;">      </span><span style="color:#ebcb8b;">console</span><span style="color:#eff1f5;">.</span><span style="color:#96b5b4;">log</span><span style="color:#eff1f5;">(
+</span><span style="color:#eff1f5;">        </span><span>`</span><span style="color:#a3be8c;">Beverage make completed at ${</span><span style="color:#bf616a;">LocalDateTime</span><span style="color:#a3be8c;">.</span><span style="color:#8fa1b3;">now</span><span style="color:#a3be8c;">()}</span><span>`
+</span><span style="color:#eff1f5;">      );
+</span><span style="color:#eff1f5;">      </span><span style="color:#65737e;">/**
+</span><span style="color:#65737e;">       * 하나의 오더가 완료 되었을 때, 픽업 알림을 보낸다
+</span><span style="color:#65737e;">       * How?
+</span><span style="color:#65737e;">       *  - 완료 된 주문을 픽업 리스트에 등록한다
+</span><span style="color:#65737e;">       *  - SSE에서 완료 된 메뉴가 있으면 클라이언트에 보내준다
+</span><span style="color:#65737e;">       */
+</span><span style="color:#eff1f5;">      </span><span style="color:#bf616a;">BaristaService</span><span style="color:#eff1f5;">.</span><span style="color:#8fa1b3;">insertPickUpOrder</span><span style="color:#eff1f5;">(</span><span style="color:#bf616a;">list</span><span style="color:#eff1f5;">.</span><span style="color:#bf616a;">orderNo</span><span style="color:#eff1f5;">);
+</span><span style="color:#eff1f5;">    }
+</span><span style="color:#eff1f5;">  }
+</span><span style="color:#eff1f5;">
+</span><span style="color:#eff1f5;">  </span><span style="color:#b48ead;">private </span><span style="color:#8fa1b3;">delay</span><span>(</span><span style="color:#bf616a;">ms</span><span>: </span><span style="color:#eff1f5;">number</span><span>) </span><span style="color:#eff1f5;">{
+</span><span style="color:#eff1f5;">    </span><span style="color:#b48ead;">return </span><span>new </span><span style="color:#eff1f5;">Promise(</span><span style="color:#bf616a;">resolve </span><span style="color:#b48ead;">=&gt; </span><span style="color:#96b5b4;">setTimeout</span><span style="color:#eff1f5;">(</span><span style="color:#bf616a;">resolve</span><span style="color:#eff1f5;">, </span><span style="color:#bf616a;">ms</span><span style="color:#eff1f5;">))
+</span><span style="color:#eff1f5;">  }
+</span><span style="color:#eff1f5;">}
+</span></code></pre>
+<p>바리스타는 정기적으로 새로 등록 된 주문 리스트를 확인한다. 아직 처리 안 한 주문이 남아있고 바리스타가 일 하지 않는 상태라면
+먼저 등록 된 주문을 꺼내 제조에 들어간다. 아메리카노는 n초, 라떼는 n초의 걸려 작업이 완료된다. 지금은 로그로 작업 완료를 나타내지만
+작업이 완료 되면 고객이 확인 할 수 있는 화면에 완료 상태를 푸시하는 작업을 추가 할 수 있을 것이다.</p>
+<pre data-lang="ts" style="background-color:#2b303b;color:#c0c5ce;" class="language-ts "><code class="language-ts" data-lang="ts"><span>@</span><span style="color:#8fa1b3;">Sse</span><span>()
+</span><span style="color:#8fa1b3;">sse</span><span>(): </span><span style="color:#bf616a;">Observable</span><span>&lt;</span><span style="color:#ebcb8b;">MessageEvent</span><span>&gt; {
+</span><span>  return </span><span style="color:#8fa1b3;">interval</span><span>(10000).</span><span style="color:#8fa1b3;">pipe</span><span>(</span><span style="color:#bf616a;">map</span><span>(() =&gt; ({ </span><span style="color:#bf616a;">data</span><span>: </span><span style="color:#bf616a;">BaristaService</span><span>.</span><span style="color:#bf616a;">shiftPickUpOrder</span><span>().</span><span style="color:#bf616a;">join</span><span>(&#39;</span><span style="color:#a3be8c;">,</span><span>&#39;) } </span><span style="color:#bf616a;">as MessageEvent </span><span>)));
+</span><span>}
+</span></code></pre>
+<p>완료 된 음료 주문 리스트를 꺼내면서 알려주는 작업이 필요했고 서버에서 클라이언트로만 통신하면 되겠다 생각하여 <a href="https://developer.mozilla.org/ko/docs/Web/API/Server-sent_events/Using_server-sent_events" target="_blank">Server Sent Events</a>로 구현하였다. 이제 정말 카페 시스템의 기초인 주문을 받고 확인하고 제조 후 알려주는 이벤트까지 된 것 같다.</p>
+<p>지금까지의 코드는 <a href="https://github.com/tahott/cafe-msa" target="_blank">이곳에</a> 있다.</p>
+
+
+    </main>
+    <footer>
+      <p>Website built with <a href="https://getzola.org">Zola</a></p>
+    </footer>
+  </body>
+</html>
