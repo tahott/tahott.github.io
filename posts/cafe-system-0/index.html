@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- <link href="style.css" rel="stylesheet"> -->
+    <link href="https://tahott.github.io/style.css" rel="stylesheet">
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-Q5NSHRWBRK"></script>
+    <script src="https://code.iconify.design/2/2.1.0/iconify.min.js"></script>
+    <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro&display=swap" rel="stylesheet">
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-Q5NSHRWBRK');
+    </script>
+  </head>
+  <body>
+    <nav style="display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 1px; border-bottom-style: dashed;">
+      <div>
+        <a href="/" style="font-weight: bold;">Gost</a>
+      </div>
+      <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); column-gap: 0.5rem; text-align: center;">
+        <a href="/posts">posts</a>
+        <a href="/tags">tags</a>
+        <a href="/about">about</a>
+      </div>
+    </nav>
+    <main>
+      
+
+  <div class="tags">
+    <span class="iconify" data-icon="bi:tag" style="font-size: 24px;"></span>
+    
+      <div class="tag">NestJs</div>
+    
+      <div class="tag">monorepo</div>
+    
+  </div>
+
+<h3 id="prologue">Prologue</h3>
+<p>바야흐로 대개발자시대에도 그저 그런 개발 경험을 가진 개발자는 수십번의 도전 끝에 이직에 실패하였다.<br>
+결국 카페를 오픈하여 새출발을 하기로 한 은퇴한 개발자 🐳고래의 이야기.<br>
+1인 카페로 주문도 받고 바리스타 역할도 해야하는 상황, 개발자는 은퇴 당했지만 개발이 싫어진 건 아니었던 고래는<br>
+카페 오픈 전 직접 주문 시스템을 개발하여 바리스타역에 집중 할 수 있는 환경을 만들어 보고자 한다.</p>
+<h4 id="step-0">step 0</h4>
+<p>고래는 먼저 간단하게 아키텍처를 그려보기로 했다.</p>
+<!--이미지 추가-->
+<img src="../../cafe_architecture.svg">
+얼추 머릿속 생각을 정리 해 본 고래는 이제 개발 환경을 정하기로 한다.
+자바 공화국답게 자바? 러스트 붐은 오니깐 러스트? 드디어 제네릭이 적용 된 고? 구관이 명관인 노드? 노드를 주로 사용해 왔지만 
+<a href="https://docs.nestjs.com/">NestJS</a> 프레임워크 경험이 없었던 고래는 못 다 이룬 꿈을 이루겠다며 NestJS를 활용하고 Event Bus로 Kafka를 사용하기로 결정했다.
+<p>시작이 반이니깐 프로젝트까지만 만들어 놓고 마무리 하기로 한다.</p>
+<pre data-lang="zsh" style="background-color:#2b303b;color:#c0c5ce;" class="language-zsh "><code class="language-zsh" data-lang="zsh"><span style="color:#bf616a;">$</span><span> npm i</span><span style="color:#bf616a;"> -g</span><span> @nestjs/cli
+</span><span style="color:#bf616a;">$</span><span> nest new </span><span style="color:#b48ead;">[</span><span>project-name</span><span style="color:#b48ead;">]
+</span></code></pre>
+
+
+    </main>
+    <footer>
+      <p>Website built with <a href="https://getzola.org">Zola</a></p>
+    </footer>
+  </body>
+</html>
